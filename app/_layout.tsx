@@ -8,22 +8,29 @@ export default function RootLayout() {
       <StatusBar style="dark" />
       <Stack
         screenOptions={{
-          headerStyle: {
-            backgroundColor: '#0EA5E9',
-          },
-          headerTintColor: '#FFFFFF',
-          headerTitleStyle: {
-            fontWeight: '600',
-          },
-          contentStyle: {
-            backgroundColor: '#F8FAFC',
-          },
+          headerShown: false,
         }}
       >
+        <Stack.Screen name="(tabs)" />
         <Stack.Screen
-          name="index"
+          name="trip/[id]"
           options={{
-            title: 'AI Trip Planner',
+            headerShown: true,
+            title: 'Trip Details',
+            headerStyle: { backgroundColor: '#0EA5E9' },
+            headerTintColor: '#FFFFFF',
+            headerTitleStyle: { fontWeight: '600' },
+          }}
+        />
+        <Stack.Screen
+          name="create-trip"
+          options={{
+            presentation: 'modal',
+            headerShown: true,
+            title: 'Create Trip',
+            headerStyle: { backgroundColor: '#0EA5E9' },
+            headerTintColor: '#FFFFFF',
+            headerTitleStyle: { fontWeight: '600' },
           }}
         />
       </Stack>

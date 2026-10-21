@@ -44,18 +44,26 @@ All client-facing env vars must use the `EXPO_PUBLIC_` prefix (Expo requirement)
 
 ```
 ai-trip-planner/
-├── app/                    # Expo Router screens (file-based routing)
-│   ├── _layout.tsx         # Root layout (Stack navigator, global styles)
-│   └── index.tsx           # Home screen
-├── assets/                 # App icons, splash images (add here)
-├── components/             # Reusable UI components (create as needed)
-├── lib/                    # Utilities, Supabase client, helpers (create as needed)
-├── supabase/               # Supabase migrations & edge functions
-├── app.json                # Expo config
-├── babel.config.js         # Babel config (babel-preset-expo)
-├── tsconfig.json           # TypeScript config
+├── app/                        # Expo Router screens (file-based routing)
+│   ├── _layout.tsx             # Root layout (Stack: tabs group + modal + detail)
+│   ├── (tabs)/                 # Tab navigation group
+│   │   ├── _layout.tsx         # Tabs layout (Home, Discover, Trips, Profile)
+│   │   ├── index.tsx           # Home screen
+│   │   ├── discover.tsx        # Discover destinations screen
+│   │   ├── trips.tsx           # My Trips list screen
+│   │   └── profile.tsx         # User profile screen
+│   ├── trip/
+│   │   └── [id].tsx            # Trip detail screen (day-by-day itinerary)
+│   └── create-trip.tsx         # Create trip modal (4-step wizard)
+├── assets/                     # App icons, splash images (add here)
+├── components/                 # Reusable UI components (create as needed)
+├── lib/                        # Utilities, Supabase client, helpers (create as needed)
+├── supabase/                   # Supabase migrations & edge functions
+├── app.json                    # Expo config
+├── babel.config.js             # Babel config (babel-preset-expo)
+├── tsconfig.json               # TypeScript config
 ├── package.json
-└── .env                    # Environment variables (EXPO_PUBLIC_ prefix)
+└── .env                        # Environment variables (EXPO_PUBLIC_ prefix)
 ```
 
 ---
@@ -122,14 +130,22 @@ ai-trip-planner/
 ### Current State (2026-10-21)
 - [x] Basic Expo project initialized (Expo SDK 51, React Native 0.74.5)
 - [x] Expo Router set up with file-based routing
-- [x] Home screen created with feature overview UI
+- [x] Full tab navigation structure: Home, Discover, Trips, Profile
+- [x] Home screen with hero card, quick actions, recent trips, popular destinations
+- [x] Discover screen with category filters, destination cards, favorites
+- [x] Trips screen with filter tabs, trip cards, empty state
+- [x] Profile screen with stats, settings menu, sign out
+- [x] Trip detail screen (trip/[id]) with day-by-day itinerary timeline
+- [x] Create Trip modal (create-trip) with 4-step wizard (destination, dates, budget, interests)
 - [x] Supabase env vars configured (EXPO_PUBLIC_ prefix)
 - [x] AGENTS.md created with rules and memory
+- [x] expo-haptics installed (not yet wired up)
 - [ ] Supabase client library not yet installed/connected
 - [ ] No database tables created yet
 - [ ] No authentication set up yet
 - [ ] No AI integration yet
-- [ ] No trip planning features implemented yet
+- [ ] Trips use hardcoded sample data (not yet connected to Supabase)
+- [ ] Create Trip form doesn't persist data yet
 
 ### Planned Features (Roadmap)
 1. **Trip Generation** — AI-powered itinerary creation based on user inputs (destination, dates, budget, interests)
