@@ -45,19 +45,23 @@ All client-facing env vars must use the `EXPO_PUBLIC_` prefix (Expo requirement)
 ```
 ai-trip-planner/
 ├── app/                        # Expo Router screens (file-based routing)
-│   ├── _layout.tsx             # Root layout (Stack: tabs group + modal + detail)
+│   ├── _layout.tsx             # Root layout (AuthProvider + AuthGate + Stack)
 │   ├── (tabs)/                 # Tab navigation group
 │   │   ├── _layout.tsx         # Tabs layout (Home, Discover, Trips, Profile)
-│   │   ├── index.tsx           # Home screen
+│   │   ├── index.tsx           # Home screen (uses useAuth for user data)
 │   │   ├── discover.tsx        # Discover destinations screen
 │   │   ├── trips.tsx           # My Trips list screen
-│   │   └── profile.tsx         # User profile screen
+│   │   └── profile.tsx         # User profile screen (real user data + sign out)
+│   ├── sign-in.tsx             # Sign In screen (email/password + Google OAuth)
+│   ├── sign-up.tsx             # Sign Up screen (email/password + Google OAuth)
 │   ├── trip/
 │   │   └── [id].tsx            # Trip detail screen (day-by-day itinerary)
 │   └── create-trip.tsx         # Create trip modal (4-step wizard)
+├── lib/
+│   ├── supabase.ts             # Supabase client (with SecureStore adapter)
+│   └── auth.tsx                # AuthProvider context + useAuth hook
 ├── assets/                     # App icons, splash images (add here)
 ├── components/                 # Reusable UI components (create as needed)
-├── lib/                        # Utilities, Supabase client, helpers (create as needed)
 ├── supabase/                   # Supabase migrations & edge functions
 ├── app.json                    # Expo config
 ├── babel.config.js             # Babel config (babel-preset-expo)
@@ -107,9 +111,17 @@ ai-trip-planner/
 - **Never use Supabase CLI** — use MCP tools only
 
 ### 5. Auth
-- Only add auth when explicitly requested
-- Default to Supabase email/password
-- Never use magic links or social providers unless asked
+- Auth is set up using Supabase email/password + Google OAuth
+- `lib/auth.tsx` provides `AuthProvider` context and `useAuth()` hook
+- `lib/supabase.ts` creates the Supabase client with SecureStore session persistence
+- Root layout (`app/_layout.tsx`) wraps everything in `AuthProvider` and uses `AuthGate`
+- AuthGate redirects to `/sign-in` when no session, or `/(tabs)` when authenticated
+- Sign In screen: `app/sign-in.tsx` — email/password + Google OAuth
+- Sign Up screen: `app/sign-up.tsx` — email/password + Google OAuth
+- A `profiles` table stores extended user info (full_name, avatar_url)
+- A database trigger (`handle_new_user`) auto-creates a profile on signup
+- Profile RLS: users can only read/update/delete their own profile
+- `useAuth()` exposes: session, user, profile, loading, signInWithEmail, signUpWithEmail, signInWithGoogle, signOut, refreshProfile
 
 ### 6. Dependencies
 - **Always check package.json** before using a library
@@ -134,18 +146,25 @@ ai-trip-planner/
 - [x] Home screen with hero card, quick actions, recent trips, popular destinations
 - [x] Discover screen with category filters, destination cards, favorites
 - [x] Trips screen with filter tabs, trip cards, empty state
-- [x] Profile screen with stats, settings menu, sign out
+- [x] Profile screen with stats, settings menu, real user data, working sign out
 - [x] Trip detail screen (trip/[id]) with day-by-day itinerary timeline
 - [x] Create Trip modal (create-trip) with 4-step wizard (destination, dates, budget, interests)
 - [x] Supabase env vars configured (EXPO_PUBLIC_ prefix)
 - [x] AGENTS.md created with rules and memory
 - [x] expo-haptics installed (not yet wired up)
-- [ ] Supabase client library not yet installed/connected
-- [ ] No database tables created yet
-- [ ] No authentication set up yet
+- [x] Supabase client connected (lib/supabase.ts with SecureStore adapter)
+- [x] Auth context set up (lib/auth.tsx with AuthProvider + useAuth hook)
+- [x] Sign In screen with email/password + Google OAuth (Dribbble-inspired UI)
+- [x] Sign Up screen with email/password + Google OAuth (Dribbble-inspired UI)
+- [x] Auth gate routing in root layout (redirects based on session state)
+- [x] profiles table created with RLS + auto-creation trigger on signup
+- [x] Profile screen shows real user data from profiles table
+- [x] Home screen greeting shows real user name + avatar initial
+- [ ] No trips table created yet
 - [ ] No AI integration yet
 - [ ] Trips use hardcoded sample data (not yet connected to Supabase)
 - [ ] Create Trip form doesn't persist data yet
+- [ ] Google OAuth requires provider configuration in Supabase dashboard
 
 ### Planned Features (Roadmap)
 1. **Trip Generation** — AI-powered itinerary creation based on user inputs (destination, dates, budget, interests)
@@ -161,6 +180,11 @@ ai-trip-planner/
 - StyleSheet for styling (can migrate to NativeWind later if needed)
 - Supabase for all backend needs (database, auth, functions)
 - Sky blue (#0EA5E9) as primary brand color
+- Auth: email/password + Google OAuth via Supabase
+- Session storage: expo-secure-store on native, localStorage on web
+- Profile auto-creation: database trigger on auth.users insert (SECURITY DEFINER)
+- Auth context: React Context API with useAuth() hook
+- Sign In/Sign Up UI: Dribbble-inspired card-based layout with sky-blue theme
 
 ### Environment
 - Supabase project ID: `0ec90b57d6e95fcbda19832f`

@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, ScrollView, Pressable, TouchableOpacity } from 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Plane, Sparkles, MapPin, Compass, ChevronRight, Plus, Clock, Calendar } from 'lucide-react-native';
+import { useAuth } from '@/lib/auth';
 
 const RECENT_TRIPS = [
   { id: '1', destination: 'Kyoto, Japan', dates: 'Oct 15 - Oct 22', status: 'Upcoming' },
@@ -17,6 +18,10 @@ const POPULAR = [
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { profile } = useAuth();
+
+  const userInitial = (profile?.full_name || profile?.email || 'T').charAt(0).toUpperCase();
+  const greetingName = profile?.full_name?.split(' ')[0] || 'traveler';
 
   const handleCreateTrip = () => {
     router.push('/create-trip');
@@ -31,11 +36,11 @@ export default function HomeScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <View>
-            <Text style={styles.greeting}>Good morning</Text>
+            <Text style={styles.greeting}>Hello, {greetingName}</Text>
             <Text style={styles.userName}>Where to next?</Text>
           </View>
           <TouchableOpacity style={styles.avatarBox}>
-            <Text style={styles.avatarText}>A</Text>
+            <Text style={styles.avatarText}>{userInitial}</Text>
           </TouchableOpacity>
         </View>
 

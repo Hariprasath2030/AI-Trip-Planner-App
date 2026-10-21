@@ -1,6 +1,7 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Settings, Bell, HelpCircle, Shield, ChevronRight, Star, Sparkles } from 'lucide-react-native';
+import { Settings, Bell, HelpCircle, Shield, ChevronRight, LogOut } from 'lucide-react-native';
+import { useAuth } from '@/lib/auth';
 
 const MENU_ITEMS = [
   { icon: Bell, label: 'Notifications', value: 'On' },
@@ -10,6 +11,19 @@ const MENU_ITEMS = [
 ];
 
 export default function ProfileScreen() {
+  const { profile, signOut } = useAuth();
+
+  const displayName = profile?.full_name || 'Traveler';
+  const displayEmail = profile?.email || '';
+  const initials = displayName.charAt(0).toUpperCase();
+
+  const handleSignOut = () => {
+    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Sign Out', style: 'destructive', onPress: () => signOut() },
+    ]);
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -19,11 +33,11 @@ export default function ProfileScreen() {
 
         <View style={styles.profileCard}>
           <View style={styles.avatarBox}>
-            <Text style={styles.avatarText}>A</Text>
+            <Text style={styles.avatarText}>{initials}</Text>
           </View>
           <View style={styles.profileInfo}>
-            <Text style={styles.profileName}>Alex Traveler</Text>
-            <Text style={styles.profileEmail}>alex@example.com</Text>
+            <Text style={styles.profileName}>{displayName}</Text>
+            <Text style={styles.profileEmail}>{displayEmail}</Text>
           </View>
         </View>
 
@@ -73,7 +87,8 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        <TouchableOpacity style={styles.signOutButton} activeOpacity={0.85}>
+        <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut} activeOpacity={0.85}>
+          <LogOut size={18} color="#DC2626" />
           <Text style={styles.signOutText}>Sign Out</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -217,10 +232,13 @@ const styles = StyleSheet.create({
     color: '#94A3B8',
   },
   signOutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
     backgroundColor: '#FEF2F2',
     borderRadius: 14,
     paddingVertical: 15,
-    alignItems: 'center',
     borderWidth: 1,
     borderColor: '#FECACA',
   },
