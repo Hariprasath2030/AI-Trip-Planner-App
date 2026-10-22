@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { Session, User } from '@supabase/supabase-js';
 import * as WebBrowser from 'expo-web-browser';
 import { supabase } from './supabase';
-import { Platform, Linking } from 'react-native';
+import { Platform } from 'react-native';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -109,7 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const redirectUrl = Platform.OS === 'web'
         ? window.location.origin
-        : makeRedirectUri({ scheme: 'aitripplanner' });
+        : 'exp://localhost:8081';
 
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
