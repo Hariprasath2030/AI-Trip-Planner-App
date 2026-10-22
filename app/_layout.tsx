@@ -21,54 +21,47 @@ function AuthGate() {
     }
   }, [session, loading, navigationState?.key]);
 
-  if (loading || !navigationState?.key) {
-    return (
-      <View style={styles.loadingContainer}>
-        <View style={styles.loadingLogo}>
-          <Plane size={28} color="#FFFFFF" />
-        </View>
-        <ActivityIndicator color="#0EA5E9" size="small" style={styles.loadingSpinner} />
-      </View>
-    );
-  }
-
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <Stack.Screen name="(tabs)" />
-      <Stack.Screen
-        name="sign-in"
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="sign-up"
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="trip/[id]"
-        options={{
-          headerShown: true,
-          title: 'Trip Details',
-          headerStyle: { backgroundColor: '#0EA5E9' },
-          headerTintColor: '#FFFFFF',
-          headerTitleStyle: { fontWeight: '600' },
+    <View style={styles.root}>
+      <Stack
+        screenOptions={{
+          headerShown: false,
         }}
-      />
-      <Stack.Screen
-        name="create-trip"
-        options={{
-          presentation: 'modal',
-          headerShown: true,
-          title: 'Create Trip',
-          headerStyle: { backgroundColor: '#0EA5E9' },
-          headerTintColor: '#FFFFFF',
-          headerTitleStyle: { fontWeight: '600' },
-        }}
-      />
-    </Stack>
+      >
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="sign-in" options={{ headerShown: false }} />
+        <Stack.Screen name="sign-up" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="trip/[id]"
+          options={{
+            headerShown: true,
+            title: 'Trip Details',
+            headerStyle: { backgroundColor: '#0EA5E9' },
+            headerTintColor: '#FFFFFF',
+            headerTitleStyle: { fontWeight: '600' },
+          }}
+        />
+        <Stack.Screen
+          name="create-trip"
+          options={{
+            presentation: 'modal',
+            headerShown: true,
+            title: 'Create Trip',
+            headerStyle: { backgroundColor: '#0EA5E9' },
+            headerTintColor: '#FFFFFF',
+            headerTitleStyle: { fontWeight: '600' },
+          }}
+        />
+      </Stack>
+      {(loading || !navigationState?.key) && (
+        <View style={styles.loadingOverlay}>
+          <View style={styles.loadingLogo}>
+            <Plane size={28} color="#FFFFFF" />
+          </View>
+          <ActivityIndicator color="#0EA5E9" size="small" style={styles.loadingSpinner} />
+        </View>
+      )}
+    </View>
   );
 }
 
@@ -84,8 +77,11 @@ export default function RootLayout() {
 }
 
 const styles = StyleSheet.create({
-  loadingContainer: {
+  root: {
     flex: 1,
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#F8FAFC',

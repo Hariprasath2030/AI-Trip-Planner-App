@@ -62,6 +62,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         setLoading(false);
       }
+    }).catch(() => {
+      setSession(null);
+      setProfile(null);
+      setLoading(false);
     });
 
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, newSession) => {
