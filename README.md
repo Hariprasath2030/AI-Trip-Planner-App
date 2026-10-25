@@ -94,3 +94,19 @@ npx expo export --platform web
 
 npm install --global eas-cli
 eas init --id a853d0d6-a1e0-4bdf-b8c9-b701c42d6533
+
+
+# 1. Authenticate
+eas login
+
+# 2. Configure EAS (normally only once)
+eas build:configure
+
+# 3. Build Android APK for testing
+eas build --platform android --profile preview
+
+# 4. Build iOS for TestFlight
+eas build --platform ios --profile production
+
+# 5. Submit iOS build to TestFlight
+eas submit --platform ios
