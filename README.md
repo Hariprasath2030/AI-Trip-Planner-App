@@ -90,3 +90,7 @@ The interface uses a bright sky-blue primary color, warm supporting accents, sof
 npx tsc --noEmit
 npx expo export --platform web
 ```
+## Deployment commands for expo
+
+npm install --global eas-cli
+eas init --id a853d0d6-a1e0-4bdf-b8c9-b701c42d6533

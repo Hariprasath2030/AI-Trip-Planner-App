@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "AI Trip Planner",
-    "slug": "ai-trip-planner",
+    "slug": "ai-trip-planner-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -33,6 +33,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a853d0d6-a1e0-4bdf-b8c9-b701c42d6533"
+      }
+    },
+    "owner": "hariprasath2030"
   }
 }
