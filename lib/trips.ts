@@ -5,6 +5,7 @@ export type ItineraryCategory = 'flight' | 'hotel' | 'car' | 'activity' | 'meal'
 
 export type Trip = {
   id: string;
+  title: string | null;
   destination: string;
   source: string | null;
   start_date: string | null;
@@ -33,6 +34,7 @@ export type ItineraryItem = {
 };
 
 export type CreateTripInput = {
+  title?: string;
   source?: string;
   destination: string;
   startDate?: string;
@@ -43,7 +45,7 @@ export type CreateTripInput = {
   description?: string;
 };
 
-const TRIP_FIELDS = 'id, destination, source, start_date, end_date, budget, interests, travelers, description, cover_image_path, status, created_at, updated_at';
+const TRIP_FIELDS = 'id, title, destination, source, start_date, end_date, budget, interests, travelers, description, cover_image_path, status, created_at, updated_at';
 
 export async function listTrips(): Promise<{ data: Trip[]; error: string | null }> {
   const { data, error } = await supabase.from('trips').select(TRIP_FIELDS).order('created_at', { ascending: false });
@@ -62,6 +64,7 @@ export async function listItineraryItems(tripId: string): Promise<{ data: Itiner
 
 export async function createTrip(input: CreateTripInput): Promise<{ data: Trip | null; error: string | null }> {
   const { data, error } = await supabase.from('trips').insert({
+    title: input.title?.trim() || input.destination.trim(),
     source: input.source?.trim() || null,
     destination: input.destination.trim(),
     start_date: input.startDate || null,

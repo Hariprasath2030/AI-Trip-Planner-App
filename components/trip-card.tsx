@@ -10,7 +10,7 @@ export function TripCard({ trip, onPress }: TripCardProps) {
     <Pressable style={styles.card} onPress={onPress}>
       <View style={styles.iconBox}><MapPin size={21} color="#0EA5E9" /></View>
       <View style={styles.copy}>
-        <View style={styles.titleRow}><Text style={styles.title}>{trip.destination}</Text><Text style={styles.status}>{trip.status}</Text></View>
+        <View style={styles.titleRow}><Text style={styles.title}>{trip.title || trip.destination}</Text><Text style={styles.status}>{trip.status}</Text></View>
         <View style={styles.metaRow}><CalendarDays size={13} color="#94A3B8" /><Text style={styles.meta}>{formatTripDates(trip)}</Text><Clock size={13} color="#94A3B8" /><Text style={styles.meta}>{getTripDays(trip) || '—'} days</Text></View>
         <View style={styles.tags}>{trip.interests.slice(0, 3).map((interest) => <Text key={interest} style={styles.tag}>{interest}</Text>)}</View>
       </View>
