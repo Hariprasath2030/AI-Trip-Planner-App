@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
   toolIcon: { width: 32, height: 32, borderRadius: 11, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
   toolIconWarm: { backgroundColor: '#FFFFFF' },
   toolText: { color: '#0F172A', fontSize: 12, fontWeight: '800' },
-  destinationCard: { width: '48%', height: 128, borderRadius: 17, overflow: 'hidden', backgroundColor: '#CBD5E1' }
+  destinationCard: { width: '48%', height: 128, borderRadius: 17, overflow: 'hidden', backgroundColor: '#CBD5E1' },
   destinationImage: { width: '100%', height: '100%' },
   destinationOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(15,23,42,0.22)' },
   destinationCopy: { position: 'absolute', left: 12, bottom: 11 },
