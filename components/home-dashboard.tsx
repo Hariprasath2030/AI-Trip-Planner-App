@@ -107,6 +107,8 @@ export function HomeDashboard({
 
       <View style={styles.sectionHeading}><View><Text style={styles.sectionTitle}>Explore next</Text><Text style={styles.sectionCaption}>Inspiration for your next escape</Text></View><Pressable onPress={onOpenDiscover} style={styles.seeAll}><Text style={styles.seeAllText}>Discover</Text><ChevronRight size={16} color="#0EA5E9" /></Pressable></View>
       <View style={styles.destinationGrid}>{DESTINATIONS.map((destination) => <TouchableOpacity key={destination.name} style={styles.destinationCard} onPress={onCreateTrip} activeOpacity={0.85}><Image source={{ uri: destination.image }} style={styles.destinationImage} /><View style={styles.destinationOverlay} /><View style={styles.destinationCopy}><Text style={styles.destinationName}>{destination.name}</Text><Text style={styles.destinationCountry}>{destination.country}</Text></View></TouchableOpacity>)}</View>
+      <Text style={styles.toolsTitle}>Quick tools</Text>
+      <View style={styles.toolsRow}><TouchableOpacity style={styles.toolCard} onPress={onCreateTrip} activeOpacity={0.85}><View style={styles.toolIcon}><Sparkles size={17} color="#0F766E" /></View><Text style={styles.toolText}>Plan with AI</Text></TouchableOpacity><TouchableOpacity style={[styles.toolCard, styles.toolCardWarm]} onPress={onCreateTrip} activeOpacity={0.85}><View style={[styles.toolIcon, styles.toolIconWarm]}><Plus size={17} color="#C2410C" /></View><Text style={styles.toolText}>Create trip</Text></TouchableOpacity></View>
       {featuredTrip ? <Text style={styles.footerNote}>Your latest plan is ready whenever you are.</Text> : null}
     </View>
   );
@@ -163,7 +165,14 @@ const styles = StyleSheet.create({
   tagRow: { flexDirection: 'row', gap: 6, marginTop: 8 },
   tag: { color: '#0F766E', backgroundColor: '#CCFBF1', paddingHorizontal: 7, paddingVertical: 3, borderRadius: 6, fontSize: 10, fontWeight: '600' },
   destinationGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  destinationCard: { width: '48%', height: 128, borderRadius: 17, overflow: 'hidden', backgroundColor: '#CBD5E1' },
+  toolsTitle: { color: '#0F172A', fontSize: 17, fontWeight: '800', marginTop: 26, marginBottom: 12 },
+  toolsRow: { flexDirection: 'row', gap: 10 },
+  toolCard: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 9, backgroundColor: '#ECFDF5', borderWidth: 1, borderColor: '#BBF7D0', borderRadius: 16, padding: 12 },
+  toolCardWarm: { backgroundColor: '#FFF1ED', borderColor: '#FED7AA' },
+  toolIcon: { width: 32, height: 32, borderRadius: 11, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
+  toolIconWarm: { backgroundColor: '#FFFFFF' },
+  toolText: { color: '#0F172A', fontSize: 12, fontWeight: '800' },
+  destinationCard: { width: '48%', height: 128, borderRadius: 17, overflow: 'hidden', backgroundColor: '#CBD5E1' }
   destinationImage: { width: '100%', height: '100%' },
   destinationOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(15,23,42,0.22)' },
   destinationCopy: { position: 'absolute', left: 12, bottom: 11 },

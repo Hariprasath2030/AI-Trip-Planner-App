@@ -1,263 +1,32 @@
+import { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { Calendar, Clock, MapPin, Star, Camera, Utensils, Bed } from 'lucide-react-native';
+import { Calendar, Camera, CheckSquare, Clock, Hotel, MapPin, Plane, Plus, Ticket, Utensils } from 'lucide-react-native';
+import { getTrip, getTripDays, listItineraryItems, type ItineraryItem, type Trip } from '@/lib/trips';
 
-type Activity = {
-  time: string;
-  title: string;
-  description: string;
-  icon: 'camera' | 'utensils' | 'bed' | 'mappin';
-};
-
-type Day = {
-  day: number;
-  title: string;
-  activities: Activity[];
-};
-
-const ICON_MAP = {
-  camera: Camera,
-  utensils: Utensils,
-  bed: Bed,
-  mappin: MapPin,
-};
-
-const ITINERARY: Day[] = [
-  {
-    day: 1,
-    title: 'Arrival & Old Town',
-    activities: [
-      { time: '10:00', title: 'Arrive at Hotel', description: 'Check-in and settle in at your accommodation.', icon: 'bed' },
-      { time: '13:00', title: 'Lunch at Local Tavern', description: 'Try traditional cuisine at a nearby restaurant.', icon: 'utensils' },
-      { time: '15:00', title: 'Explore Old Town', description: 'Wander through historic streets and landmarks.', icon: 'camera' },
-      { time: '19:00', title: 'Sunset Viewpoint', description: 'Scenic overlook for golden hour photos.', icon: 'mappin' },
-    ],
-  },
-  {
-    day: 2,
-    title: 'Temples & Gardens',
-    activities: [
-      { time: '08:00', title: 'Morning Temple Visit', description: 'Visit the most famous temple before crowds arrive.', icon: 'mappin' },
-      { time: '12:00', title: 'Garden Lunch', description: 'Picnic in the botanical gardens.', icon: 'utensils' },
-      { time: '14:00', title: 'Tea Ceremony', description: 'Experience a traditional tea ceremony.', icon: 'camera' },
-      { time: '18:00', title: 'Dinner & Rest', description: 'Relaxing dinner at the hotel.', icon: 'bed' },
-    ],
-  },
-  {
-    day: 3,
-    title: 'Day Trip to Mountains',
-    activities: [
-      { time: '07:00', title: 'Early Departure', description: 'Head out to the mountain trailhead.', icon: 'mappin' },
-      { time: '10:00', title: 'Hiking & Photography', description: 'Guided hike with scenic photo stops.', icon: 'camera' },
-      { time: '13:00', title: 'Mountain Lunch', description: 'Packed lunch at the summit viewpoint.', icon: 'utensils' },
-      { time: '17:00', title: 'Return to City', description: 'Head back and relax at the hotel.', icon: 'bed' },
-    ],
-  },
-];
+const ICONS = { flight: Plane, hotel: Hotel, car: MapPin, activity: Camera, meal: Utensils, extra: Ticket };
+const TABS = ['Itinerary', 'Bookings', 'Packing', 'Photos'] as const;
+type Tab = (typeof TABS)[number];
 
 export default function TripDetailScreen() {
-  const params = useLocalSearchParams<{ id: string }>();
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const [trip, setTrip] = useState<Trip | null>(null);
+  const [items, setItems] = useState<ItineraryItem[]>([]);
+  const [tab, setTab] = useState<Tab>('Itinerary');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const load = useCallback(async () => { if (!id) return; setLoading(true); const [tripResult, itineraryResult] = await Promise.all([getTrip(id), listItineraryItems(id)]); setTrip(tripResult.data); setItems(itineraryResult.data); setError(tripResult.error || itineraryResult.error); setLoading(false); }, [id]);
+  useEffect(() => { load(); }, [load]);
+  const grouped = items.reduce<Record<number, ItineraryItem[]>>((result, item) => { (result[item.day_number] ??= []).push(item); return result; }, {});
 
-  return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <View style={styles.heroSection}>
-        <Text style={styles.heroEmoji}>🗺️</Text>
-        <Text style={styles.heroDestination}>Kyoto, Japan</Text>
-        <View style={styles.heroMetaRow}>
-          <View style={styles.metaPill}>
-            <Calendar size={13} color="#FFFFFF" />
-            <Text style={styles.metaPillText}>Oct 15 - 22</Text>
-          </View>
-          <View style={styles.metaPill}>
-            <Clock size={13} color="#FFFFFF" />
-            <Text style={styles.metaPillText}>7 days</Text>
-          </View>
-          <View style={styles.metaPill}>
-            <Star size={13} color="#FFFFFF" fill="#FFFFFF" />
-            <Text style={styles.metaPillText}>4.8</Text>
-          </View>
-        </View>
-      </View>
-
-      <View style={styles.itinerarySection}>
-        <Text style={styles.sectionTitle}>Your Itinerary</Text>
-        {ITINERARY.map((day) => (
-          <View key={day.day} style={styles.dayCard}>
-            <View style={styles.dayHeader}>
-              <View style={styles.dayBadge}>
-                <Text style={styles.dayNumber}>{day.day}</Text>
-              </View>
-              <View>
-                <Text style={styles.dayLabel}>DAY {day.day}</Text>
-                <Text style={styles.dayTitle}>{day.title}</Text>
-              </View>
-            </View>
-            <View style={styles.timeline}>
-              {day.activities.map((activity, index) => {
-                const Icon = ICON_MAP[activity.icon];
-                return (
-                  <View key={index} style={styles.timelineItem}>
-                    <View style={styles.timelineLine}>
-                      <View style={styles.timelineDot}>
-                        <Icon size={12} color="#0EA5E9" />
-                      </View>
-                      {index < day.activities.length - 1 && <View style={styles.timelineConnector} />}
-                    </View>
-                    <View style={styles.timelineContent}>
-                      <Text style={styles.activityTime}>{activity.time}</Text>
-                      <Text style={styles.activityTitle}>{activity.title}</Text>
-                      <Text style={styles.activityDescription}>{activity.description}</Text>
-                    </View>
-                  </View>
-                );
-              })}
-            </View>
-          </View>
-        ))}
-      </View>
-    </ScrollView>
-  );
+  if (loading) return <View style={styles.center}><ActivityIndicator color="#0EA5E9" /><Text style={styles.muted}>Loading your trip...</Text></View>;
+  if (error || !trip) return <View style={styles.center}><Text style={styles.error}>{error || 'Trip not found'}</Text></View>;
+  return <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <View style={styles.hero}><View style={styles.heroTop}><View style={styles.heroBadge}><Plane size={18} color="#0EA5E9" /></View><Text style={styles.heroStatus}>{trip.status.toUpperCase()}</Text></View><Text style={styles.destination}>{trip.destination}</Text><Text style={styles.route}>{trip.source || 'Your starting point'} <Text style={styles.arrow}>→</Text> {trip.destination}</Text><View style={styles.metaRow}><View style={styles.meta}><Calendar size={14} color="#FFFFFF" /><Text style={styles.metaText}>{trip.start_date && trip.end_date ? `${trip.start_date} · ${trip.end_date}` : 'Flexible dates'}</Text></View><View style={styles.meta}><Clock size={14} color="#FFFFFF" /><Text style={styles.metaText}>{getTripDays(trip) || '—'} days</Text></View></View></View>
+    <View style={styles.tabs}>{TABS.map((item) => <Pressable key={item} onPress={() => setTab(item)} style={[styles.tab, tab === item && styles.tabActive]}><Text style={[styles.tabText, tab === item && styles.tabTextActive]}>{item}</Text></Pressable>)}</View>
+    {tab === 'Itinerary' && <View style={styles.body}><View style={styles.sectionHeader}><View><Text style={styles.sectionTitle}>Your itinerary</Text><Text style={styles.muted}>A thoughtful plan, day by day</Text></View><Pressable style={styles.addButton}><Plus size={16} color="#0EA5E9" /><Text style={styles.addText}>Add</Text></Pressable></View>{Object.keys(grouped).length === 0 ? <View style={styles.empty}><MapPin size={24} color="#0EA5E9" /><Text style={styles.emptyTitle}>Your itinerary is ready to be shaped</Text><Text style={styles.muted}>Add flights, hotels, meals, and activities as your plans take form.</Text></View> : Object.entries(grouped).map(([day, dayItems]) => <View key={day} style={styles.dayCard}><View style={styles.dayHeader}><View style={styles.dayNumber}><Text style={styles.dayNumberText}>{day}</Text></View><View><Text style={styles.dayLabel}>DAY {day}</Text><Text style={styles.dayTitle}>{dayItems[0]?.title || 'Plan your day'}</Text></View></View>{dayItems.map((item) => { const Icon = ICONS[item.category] || Camera; return <View key={item.id} style={styles.item}><View style={styles.itemIcon}><Icon size={16} color="#0EA5E9" /></View><View style={styles.itemCopy}><Text style={styles.itemTime}>{item.start_time || 'Anytime'}</Text><Text style={styles.itemTitle}>{item.title}</Text>{item.description && <Text style={styles.itemDescription}>{item.description}</Text>}</View></View>; })}</View>)}</View>}
+    {tab !== 'Itinerary' && <View style={styles.body}><View style={styles.empty}><CheckSquare size={26} color="#0EA5E9" /><Text style={styles.emptyTitle}>{tab} will live here</Text><Text style={styles.muted}>Keep this trip organized with everything you need in one place.</Text></View></View>}
+  </ScrollView>;
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  heroSection: {
-    backgroundColor: '#0EA5E9',
-    paddingTop: 60,
-    paddingBottom: 28,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
-  },
-  heroEmoji: {
-    fontSize: 48,
-    marginBottom: 8,
-  },
-  heroDestination: {
-    fontSize: 26,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    marginBottom: 16,
-  },
-  heroMetaRow: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  metaPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    backgroundColor: 'rgba(255, 255, 255, 0.22)',
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 16,
-  },
-  metaPillText: {
-    fontSize: 13,
-    color: '#FFFFFF',
-    fontWeight: '500',
-  },
-  itinerarySection: {
-    padding: 20,
-    paddingTop: 28,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#0F172A',
-    marginBottom: 16,
-  },
-  dayCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    padding: 18,
-    marginBottom: 16,
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.07,
-    shadowRadius: 10,
-    elevation: 3,
-  },
-  dayHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    marginBottom: 18,
-  },
-  dayBadge: {
-    width: 42,
-    height: 42,
-    borderRadius: 14,
-    backgroundColor: '#E0F2FE',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  dayNumber: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#0EA5E9',
-  },
-  dayLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#94A3B8',
-    letterSpacing: 1,
-  },
-  dayTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#0F172A',
-    marginTop: 2,
-  },
-  timeline: {
-    paddingLeft: 4,
-  },
-  timelineItem: {
-    flexDirection: 'row',
-    gap: 14,
-  },
-  timelineLine: {
-    alignItems: 'center',
-    width: 28,
-  },
-  timelineDot: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#E0F2FE',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  timelineConnector: {
-    width: 2,
-    flex: 1,
-    backgroundColor: '#E2E8F0',
-    marginTop: 2,
-    marginBottom: 2,
-  },
-  timelineContent: {
-    flex: 1,
-    paddingBottom: 18,
-  },
-  activityTime: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#0EA5E9',
-    marginBottom: 2,
-  },
-  activityTitle: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#0F172A',
-    marginBottom: 3,
-  },
-  activityDescription: {
-    fontSize: 13,
-    color: '#64748B',
-    lineHeight: 19,
-  },
-});
+const styles = StyleSheet.create({ container: { flex: 1, backgroundColor: '#F8FAFC' }, center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#F8FAFC', padding: 28 }, hero: { backgroundColor: '#0EA5E9', paddingHorizontal: 20, paddingTop: 28, paddingBottom: 28, borderBottomLeftRadius: 28, borderBottomRightRadius: 28 }, heroTop: { flexDirection: 'row', alignItems: 'center', gap: 10 }, heroBadge: { width: 38, height: 38, borderRadius: 14, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' }, heroStatus: { color: '#E0F2FE', fontSize: 11, fontWeight: '800', letterSpacing: 1.3 }, destination: { color: '#FFFFFF', fontSize: 30, fontWeight: '800', marginTop: 18 }, route: { color: '#E0F2FE', fontSize: 14, marginTop: 5 }, arrow: { color: '#FFFFFF', fontWeight: '800' }, metaRow: { flexDirection: 'row', gap: 10, marginTop: 18 }, meta: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 10, paddingVertical: 7, borderRadius: 14 }, metaText: { color: '#FFFFFF', fontSize: 12 }, tabs: { flexDirection: 'row', backgroundColor: '#FFFFFF', paddingHorizontal: 16, paddingVertical: 10, gap: 8 }, tab: { flex: 1, alignItems: 'center', paddingVertical: 10, borderRadius: 11 }, tabActive: { backgroundColor: '#E0F2FE' }, tabText: { color: '#94A3B8', fontSize: 12, fontWeight: '700' }, tabTextActive: { color: '#0284C7' }, body: { padding: 20 }, sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }, sectionTitle: { color: '#0F172A', fontSize: 21, fontWeight: '800' }, muted: { color: '#64748B', fontSize: 13, lineHeight: 19, marginTop: 4 }, addButton: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 11, paddingVertical: 8, borderRadius: 12, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#BAE6FD' }, addText: { color: '#0284C7', fontSize: 12, fontWeight: '800' }, dayCard: { backgroundColor: '#FFFFFF', borderRadius: 18, padding: 16, marginBottom: 14, shadowColor: '#0F172A', shadowOpacity: 0.05, shadowRadius: 10, shadowOffset: { width: 0, height: 3 }, elevation: 2 }, dayHeader: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16 }, dayNumber: { width: 42, height: 42, borderRadius: 14, backgroundColor: '#E0F2FE', alignItems: 'center', justifyContent: 'center' }, dayNumberText: { color: '#0284C7', fontSize: 18, fontWeight: '800' }, dayLabel: { color: '#94A3B8', fontSize: 10, fontWeight: '800', letterSpacing: 1 }, dayTitle: { color: '#0F172A', fontSize: 16, fontWeight: '700', marginTop: 3 }, item: { flexDirection: 'row', gap: 11, borderTopWidth: 1, borderTopColor: '#F1F5F9', paddingVertical: 13 }, itemIcon: { width: 32, height: 32, borderRadius: 11, backgroundColor: '#F0F9FF', alignItems: 'center', justifyContent: 'center' }, itemCopy: { flex: 1 }, itemTime: { color: '#0EA5E9', fontSize: 11, fontWeight: '800' }, itemTitle: { color: '#0F172A', fontSize: 14, fontWeight: '700', marginTop: 2 }, itemDescription: { color: '#64748B', fontSize: 12, lineHeight: 17, marginTop: 3 }, empty: { alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 18, padding: 28, marginTop: 4 }, emptyTitle: { color: '#0F172A', fontSize: 17, fontWeight: '800', textAlign: 'center', marginTop: 12 } , error: { color: '#B91C1C', textAlign: 'center' } });
