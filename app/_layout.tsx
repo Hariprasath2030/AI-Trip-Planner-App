@@ -2,14 +2,28 @@ import { Stack, useRouter, useRootNavigationState } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { Animated, Easing } from 'react-native';
 import { AuthProvider, useAuth } from '@/lib/auth';
 import { Plane } from 'lucide-react-native';
+import { colors, shadows } from '@/lib/theme';
 
 function AuthGate() {
   const { session, loading } = useAuth();
   const router = useRouter();
   const navigationState = useRootNavigationState();
+  const logoPulse = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(logoPulse, { toValue: 1, duration: 900, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
+        Animated.timing(logoPulse, { toValue: 0, duration: 900, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [logoPulse]);
 
   useEffect(() => {
     if (!navigationState?.key || loading) return;
@@ -26,17 +40,18 @@ function AuthGate() {
       <Stack
         screenOptions={{
           headerShown: false,
+          animation: 'slide_from_right',
         }}
       >
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="sign-in" options={{ headerShown: false }} />
-        <Stack.Screen name="sign-up" options={{ headerShown: false }} />
+        <Stack.Screen name="sign-in" options={{ headerShown: false, animation: 'fade' }} />
+        <Stack.Screen name="sign-up" options={{ headerShown: false, animation: 'fade' }} />
         <Stack.Screen
           name="trip/[id]"
           options={{
             headerShown: true,
             title: 'Trip Details',
-            headerStyle: { backgroundColor: '#0EA5E9' },
+            headerStyle: { backgroundColor: colors.primaryDark },
             headerTintColor: '#FFFFFF',
             headerTitleStyle: { fontWeight: '600' },
           }}
@@ -47,7 +62,7 @@ function AuthGate() {
             presentation: 'modal',
             headerShown: true,
             title: 'Create Trip',
-            headerStyle: { backgroundColor: '#0EA5E9' },
+            headerStyle: { backgroundColor: colors.primaryDark },
             headerTintColor: '#FFFFFF',
             headerTitleStyle: { fontWeight: '600' },
           }}
@@ -55,10 +70,22 @@ function AuthGate() {
       </Stack>
       {(loading || !navigationState?.key) && (
         <View style={styles.loadingOverlay}>
-          <View style={styles.loadingLogo}>
+          <Animated.View
+            style={[
+              styles.loadingLogo,
+              shadows.lg,
+              {
+                transform: [
+                  { scale: logoPulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.1] }) },
+                ],
+                opacity: logoPulse.interpolate({ inputRange: [0, 1], outputRange: [0.85, 1] }),
+              },
+            ]}
+          >
             <Plane size={28} color="#FFFFFF" />
-          </View>
-          <ActivityIndicator color="#0EA5E9" size="small" style={styles.loadingSpinner} />
+          </Animated.View>
+          <ActivityIndicator color={colors.primary} size="small" style={styles.loadingSpinner} />
+          <Text style={styles.loadingText}>Preparing your journeys</Text>
         </View>
       )}
     </View>
@@ -77,30 +104,9 @@ export default function RootLayout() {
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-  loadingOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F8FAFC',
-  },
-  loadingLogo: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: '#0EA5E9',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-    shadowColor: '#0EA5E9',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 6,
-  },
-  loadingSpinner: {
-    marginTop: 8,
-  },
+  root: { flex: 1 },
+  loadingOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background },
+  loadingLogo: { width: 64, height: 64, borderRadius: 32, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
+  loadingSpinner: { marginTop: 8 },
+  loadingText: { color: colors.textSecondary, fontSize: 13, fontWeight: '600', marginTop: 12 },
 });

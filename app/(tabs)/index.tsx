@@ -5,6 +5,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { HomeDashboard } from '@/components/home-dashboard';
 import { listTrips, type Trip } from '@/lib/trips';
 import { useAuth } from '@/lib/auth';
+import { colors } from '@/lib/theme';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -55,6 +56,6 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8FAFC' },
+  container: { flex: 1, backgroundColor: colors.background },
   content: { paddingHorizontal: 20, paddingTop: 18, paddingBottom: 38 },
 });
