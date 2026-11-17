@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   brand: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 20, paddingTop: 8, alignSelf: 'flex-start' },
   brandIcon: { width: 28, height: 28, borderRadius: 14, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
   brandText: { color: '#FFFFFF', fontSize: 14, fontWeight: '800' },
-  content: { flexGrow: 1, justifyContent: 'flex-end', padding: 20, paddingTop: 60 },
+  content: { flexGrow: 1, justifyContent: 'flex-start', padding: 20, paddingTop: 100 },
   card: { backgroundColor: 'rgba(255,255,255,0.96)', borderRadius: radius.xl + 2, padding: 22 },
   title: { color: colors.textPrimary, fontSize: 24, lineHeight: 30, fontWeight: '800' },
   subtitle: { color: colors.textSecondary, fontSize: 13, marginTop: 7, marginBottom: 16 },
