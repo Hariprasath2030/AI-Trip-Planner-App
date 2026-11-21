@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { HomeDashboard } from '@/components/home-dashboard';
-import { listTrips, type Trip } from '@/lib/trips';
+import { listTrips, type Trip } from '@/lib/api/trips';
 import { useAuth } from '@/lib/auth';
 import { colors } from '@/lib/theme';
 

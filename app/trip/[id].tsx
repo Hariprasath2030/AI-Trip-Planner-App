@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Calendar, Camera, CheckSquare, Clock, Hotel, MapPin, Plane, Plus, Ticket, Utensils } from 'lucide-react-native';
-import { getTrip, getTripDays, listItineraryItems, type ItineraryItem, type Trip } from '@/lib/trips';
+import { getTrip, getTripDays, listItineraryItems, type ItineraryItem, type Trip } from '@/lib/api/trips';
 import { colors, radius, shadows } from '@/lib/theme';
 import { AnimatedPressable, FadeSlideIn } from '@/components/ui/animated';
 

@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Image, StyleSheet, Text, TextInput, View } from 'react-native';
 import { CalendarDays, ChevronDown, ChevronRight, Mic, Plus, Plane, Sparkles } from 'lucide-react-native';
-import type { Trip } from '@/lib/trips';
-import { formatTripDates, getTripDays } from '@/lib/trips';
+import type { Trip } from '@/lib/api/trips';
+import { formatTripDates, getTripDays } from '@/lib/api/trips';
 import { colors, radius, shadows } from '@/lib/theme';
 import { AnimatedPressable, FadeSlideIn, usePulse } from '@/components/ui/animated';
 

@@ -25,12 +25,11 @@ const BACKDROP =
 
 export default function SignInScreen() {
   const router = useRouter();
-  const { signInWithEmail, signInWithGoogle } = useAuth();
+  const { signInWithEmail } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const planeFloat = useRef(new Animated.Value(0)).current;
@@ -64,14 +63,6 @@ export default function SignInScreen() {
     setError(null);
     const result = await signInWithEmail(email.trim(), password);
     setLoading(false);
-    if (result.error) setError(result.error);
-  };
-
-  const handleGoogle = async () => {
-    setGoogleLoading(true);
-    setError(null);
-    const result = await signInWithGoogle();
-    setGoogleLoading(false);
     if (result.error) setError(result.error);
   };
 
@@ -153,23 +144,6 @@ export default function SignInScreen() {
                   )}
                 </AnimatedPressable>
 
-                <View style={styles.or}>
-                  <View style={styles.line} />
-                  <Text style={styles.orText}>OR</Text>
-                  <View style={styles.line} />
-                </View>
-
-                <AnimatedPressable style={styles.google} onPress={handleGoogle} disabled={googleLoading}>
-                  {googleLoading ? (
-                    <ActivityIndicator color="#4285F4" />
-                  ) : (
-                    <>
-                      <Text style={styles.googleIcon}>G</Text>
-                      <Text style={styles.googleText}>Continue with Google</Text>
-                    </>
-                  )}
-                </AnimatedPressable>
-
                 <View style={styles.footer}>
                   <Text style={styles.footerText}>New here? </Text>
                   <TouchableOpacity onPress={() => router.push('/sign-up')}>
@@ -206,12 +180,6 @@ const styles = StyleSheet.create({
   forgotText: { color: colors.primaryDark, fontSize: 11, fontWeight: '700' },
   primary: { backgroundColor: colors.primary, borderRadius: radius.full, alignItems: 'center', paddingVertical: 15, marginTop: 4 },
   primaryText: { color: '#FFFFFF', fontSize: 14, fontWeight: '800', letterSpacing: 0.2 },
-  or: { flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 16 },
-  line: { height: 1, flex: 1, backgroundColor: colors.border },
-  orText: { color: colors.textMuted, fontSize: 10, fontWeight: '800' },
-  google: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#FFFFFF', borderRadius: radius.full, paddingVertical: 14, borderWidth: 1, borderColor: colors.border },
-  googleIcon: { color: '#4285F4', fontSize: 15, fontWeight: '900' },
-  googleText: { color: colors.textSecondary, fontSize: 13, fontWeight: '700' },
   footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 18 },
   footerText: { color: colors.textSecondary, fontSize: 12 },
   link: { color: colors.primaryDark, fontSize: 12, fontWeight: '800' },

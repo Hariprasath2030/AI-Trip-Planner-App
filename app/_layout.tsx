@@ -9,7 +9,7 @@ import { Plane } from 'lucide-react-native';
 import { colors, shadows } from '@/lib/theme';
 
 function AuthGate() {
-  const { session, loading } = useAuth();
+  const { sessionToken, loading } = useAuth();
   const router = useRouter();
   const navigationState = useRootNavigationState();
   const logoPulse = useRef(new Animated.Value(0)).current;
@@ -28,12 +28,12 @@ function AuthGate() {
   useEffect(() => {
     if (!navigationState?.key || loading) return;
 
-    if (!session) {
+    if (!sessionToken) {
       router.replace('/sign-in');
     } else {
       router.replace('/(tabs)');
     }
-  }, [session, loading, navigationState?.key]);
+  }, [sessionToken, loading, navigationState?.key]);
 
   return (
     <View style={styles.root}>

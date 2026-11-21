@@ -1,10 +1,11 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { Session, User } from '@supabase/supabase-js';
-import * as WebBrowser from 'expo-web-browser';
-import { supabase } from './supabase';
-import { Platform } from 'react-native';
-
-WebBrowser.maybeCompleteAuthSession();
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from 'react';
+import { clearSession, loadSession, request, saveSession } from './api/client';
 
 export type Profile = {
   id: string;
@@ -16,155 +17,91 @@ export type Profile = {
 };
 
 type AuthContextType = {
-  session: Session | null;
-  user: User | null;
+  sessionToken: string | null;
   profile: Profile | null;
   loading: boolean;
   signInWithEmail: (email: string, password: string) => Promise<{ error: string | null }>;
-  signUpWithEmail: (email: string, password: string, fullName: string) => Promise<{ error: string | null }>;
-  signInWithGoogle: () => Promise<{ error: string | null }>;
+  signUpWithEmail: (
+    email: string,
+    password: string,
+    fullName: string
+  ) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
-  refreshProfile: () => Promise<void>;
+};
+
+type AuthResponse = {
+  session: {
+    access_token: string;
+    refresh_token: string;
+    expires_in: number | null;
+  } | null;
+  profile: Profile | null;
+  error: string | null;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .maybeSingle();
-
-    if (error) {
-      console.warn('Failed to fetch profile:', error.message);
-      return;
-    }
-    setProfile(data as Profile | null);
-  };
-
-  const refreshProfile = async () => {
-    if (session?.user?.id) {
-      await fetchProfile(session.user.id);
-    }
-  };
-
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session?.user?.id) {
-        fetchProfile(session.user.id).finally(() => setLoading(false));
-      } else {
-        setLoading(false);
+    loadSession().then((stored) => {
+      if (stored?.access_token) {
+        setSessionToken(stored.access_token);
       }
-    }).catch(() => {
-      setSession(null);
-      setProfile(null);
       setLoading(false);
     });
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      setSession(newSession);
-      if (newSession?.user?.id) {
-        (async () => {
-          await fetchProfile(newSession.user.id);
-        })();
-      } else {
-        setProfile(null);
-      }
-    });
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
   }, []);
 
-  const signInWithEmail = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error: error?.message ?? null };
-  };
-
-  const signUpWithEmail = async (email: string, password: string, fullName: string) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: fullName },
-      },
-    });
-
-    if (error) {
-      return { error: error.message };
+  const applySession = async (response: AuthResponse): Promise<{ error: string | null }> => {
+    if (response.error && !response.session) {
+      return { error: response.error };
     }
-
-    if (data.user) {
-      await fetchProfile(data.user.id);
+    if (response.session) {
+      await saveSession({
+        access_token: response.session.access_token,
+        refresh_token: response.session.refresh_token,
+        expires_in: response.session.expires_in,
+      });
+      setSessionToken(response.session.access_token);
     }
-
+    setProfile(response.profile ?? null);
     return { error: null };
   };
 
-  const signInWithGoogle = async () => {
-    try {
-      const redirectUrl = Platform.OS === 'web'
-        ? window.location.origin
-        : 'exp://localhost:8081';
+  const signInWithEmail = async (email: string, password: string) => {
+    const result = await request<AuthResponse>('/api/auth/sign-in', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+    if (result.error) return { error: result.error };
+    return applySession(result.data);
+  };
 
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: redirectUrl },
-      });
-
-      if (error) {
-        return { error: error.message };
-      }
-
-      if (Platform.OS !== 'web' && data.url) {
-        const result = await WebBrowser.openAuthSessionAsync(data.url, redirectUrl);
-        if (result.type === 'success' && result.url) {
-          const url = new URL(result.url);
-          const params = new URLSearchParams(url.hash.substring(1));
-          const access_token = params.get('access_token');
-          const refresh_token = params.get('refresh_token');
-
-          if (access_token && refresh_token) {
-            const { error: sessionError } = await supabase.auth.setSession({
-              access_token,
-              refresh_token,
-            });
-            if (sessionError) {
-              return { error: sessionError.message };
-            }
-          }
-        }
-      }
-      return { error: null };
-    } catch (err) {
-      return { error: err instanceof Error ? err.message : 'Google sign-in failed' };
-    }
+  const signUpWithEmail = async (email: string, password: string, fullName: string) => {
+    const result = await request<AuthResponse>('/api/auth/sign-up', {
+      method: 'POST',
+      body: JSON.stringify({ email, password, full_name: fullName }),
+    });
+    if (result.error) return { error: result.error };
+    return applySession(result.data);
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    await clearSession();
+    setSessionToken(null);
     setProfile(null);
-    setSession(null);
   };
 
   const value: AuthContextType = {
-    session,
-    user: session?.user ?? null,
+    sessionToken,
     profile,
     loading,
     signInWithEmail,
     signUpWithEmail,
-    signInWithGoogle,
     signOut,
-    refreshProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

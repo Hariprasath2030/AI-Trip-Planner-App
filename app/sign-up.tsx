@@ -19,13 +19,12 @@ import { AnimatedPressable, FadeSlideIn } from '@/components/ui/animated';
 
 export default function SignUpScreen() {
   const router = useRouter();
-  const { signUpWithEmail, signInWithGoogle } = useAuth();
+  const { signUpWithEmail } = useAuth();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSignUp = async () => {
@@ -41,14 +40,6 @@ export default function SignUpScreen() {
     setLoading(true);
     const { error } = await signUpWithEmail(email.trim(), password, fullName.trim());
     setLoading(false);
-    if (error) setError(error);
-  };
-
-  const handleGoogleSignUp = async () => {
-    setError(null);
-    setGoogleLoading(true);
-    const { error } = await signInWithGoogle();
-    setGoogleLoading(false);
     if (error) setError(error);
   };
 
@@ -138,22 +129,9 @@ export default function SignUpScreen() {
 
               <View style={styles.dividerRow}>
                 <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>or sign up with</Text>
+                <Text style={styles.dividerText}>Fill in your details to get started</Text>
                 <View style={styles.dividerLine} />
               </View>
-
-              <AnimatedPressable style={styles.googleButton} onPress={handleGoogleSignUp} disabled={googleLoading}>
-                {googleLoading ? (
-                  <ActivityIndicator color={colors.textPrimary} size="small" />
-                ) : (
-                  <>
-                    <View style={styles.googleIconBox}>
-                      <Text style={styles.googleIconText}>G</Text>
-                    </View>
-                    <Text style={styles.googleButtonText}>Sign up with Google</Text>
-                  </>
-                )}
-              </AnimatedPressable>
             </View>
           </FadeSlideIn>
 

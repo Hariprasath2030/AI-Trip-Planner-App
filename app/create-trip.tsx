@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowRight, Calendar, Check, Heart, MapPin, Sparkles, Users } from 'lucide-react-native';
-import { createTrip } from '@/lib/trips';
+import { createTrip } from '@/lib/api/trips';
 import { colors, radius, shadows } from '@/lib/theme';
 import { AnimatedPressable, FadeSlideIn } from '@/components/ui/animated';
 

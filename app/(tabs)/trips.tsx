@@ -3,7 +3,7 @@ import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View }
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Plus, Plane } from 'lucide-react-native';
-import { listTrips, type Trip, type TripStatus } from '@/lib/trips';
+import { listTrips, type Trip, type TripStatus } from '@/lib/api/trips';
 import { TripCard } from '@/components/trip-card';
 import { colors, radius, shadows } from '@/lib/theme';
 import { AnimatedPressable, FadeSlideIn } from '@/components/ui/animated';

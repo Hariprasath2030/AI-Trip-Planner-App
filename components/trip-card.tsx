@@ -1,7 +1,7 @@
 import { CalendarDays, ChevronRight, Clock, MapPin } from 'lucide-react-native';
 import { StyleSheet, Text, View } from 'react-native';
-import type { Trip } from '@/lib/trips';
-import { formatTripDates, getTripDays } from '@/lib/trips';
+import type { Trip } from '@/lib/api/trips';
+import { formatTripDates, getTripDays } from '@/lib/api/trips';
 import { colors, radius, shadows } from '@/lib/theme';
 import { AnimatedPressable } from '@/components/ui/animated';
 
