@@ -1,3 +1,4 @@
+
 {
   "expo": {
     "name": "AI Trip Planner",
@@ -7,11 +8,6 @@
     "icon": "./assets/icon.png",
     "scheme": "aitripplanner",
     "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#0EA5E9"
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.aitripplanner.app"
@@ -29,7 +25,16 @@
     },
     "plugins": [
       "expo-router",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#0EA5E9"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
